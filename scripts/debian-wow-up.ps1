@@ -1,11 +1,11 @@
-# Start Grudge WoW via Debian WSL (preferred — native docker, more RAM)
+# Start Grudge WoW via Debian WSL (preferred - native docker, more RAM)
 $ErrorActionPreference = "Continue"
 $Root = Split-Path $PSScriptRoot -Parent
 
 Write-Host "=== Grudge WoW via Debian WSL ===" -ForegroundColor Cyan
 # Only restart WSL when explicitly requested (wsl --shutdown kills a running stack)
 if ($env:WOW_WSL_RESTART -eq '1') {
-  Write-Host "WOW_WSL_RESTART=1 — restarting WSL for .wslconfig changes" -ForegroundColor Yellow
+  Write-Host "WOW_WSL_RESTART=1 - restarting WSL for .wslconfig changes" -ForegroundColor Yellow
   wsl --shutdown 2>$null
   Start-Sleep 4
 }
