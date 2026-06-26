@@ -1,0 +1,133 @@
+# Grudge WoW — full browser-playable stack
+# AzerothCore 3.3.5a + Wowser gateway/pipeline
+#
+# Start:  docker compose up -d
+# Logs:   docker compose logs -f ac-worldserver wow-gateway
+# Accounts are auto-created from Grudge ID on first launch (SOAP on ac-worldserver:7878)
+
+include:
+  # Official AzerothCore WotLK Docker setup (from https://github.com/azerothcore/azerothcore-wotlk)
+  # Customized locally for browser client integration (Wowser + custom gateway/pipeline)
+  - path: ./docker/acore/docker-compose.yml
+
+services:
+  wow-gateway:
+    build:
+      context: .
+      dockerfile: docker/gateway/Dockerfile
+    container_name: wow-gateway
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      GATEWAY_PORT: 8787
+      PIPELINE_URL: http://wow-pipeline:3000
+      WOW_AUTH_HOST: ac-authserver:3724
+      WOW_WORLD_HOST: ac-worldserver:8085
+      PUBLIC_PIPELINE_URL: https://wow-pipeline.grudge-studio.com
+      PUBLIC_AUTH_WS: wss://wow-auth.grudge-studio.com
+      PUBLIC_WORLD_WS: wss://wow-world.grudge-studio.com
+      CORS_ORIGIN: https://wow.grudge-studio.com
+      GRUDGE_AUTH_URL: https://id.grudge-studio.com
+      REQUIRE_GRUDGE_AUTH: "true"
+      AC_SOAP_HOST: ac-worldserver:7878
+      AC_SOAP_USER: ${AC_SOAP_USER:-admin}
+      AC_SOAP_PASS: ${AC_SOAP_PASS:-admin}
+      PLAYER_DATA_PATH: /app/data/players.json
+      AC_MYSQL_HOST: ac-database
+      AC_MYSQL_PORT: 3306
+      AC_MYSQL_USER: root
+      AC_MYSQL_PASSWORD: ${DOCKER_DB_ROOT_PASSWORD:-password}
+      AC_MYSQL_AUTH_DB: acore_auth
+      AC_MYSQL_CHAR_DB: acore_characters
+      DOCKER_DB_ROOT_PASSWORD: ${DOCKER_DB_ROOT_PASSWORD:-password}
+    volumes:
+      - wow-player-data:/app/data
+    depends_on:
+      wow-pipeline:
+        condition: service_started
+      ac-authserver:
+        condition: service_started
+      ac-worldserver:
+        condition: service_started
+    networks:
+      - ac-network
+
+  wow-pipeline:
+    build:
+      context: .
+      dockerfile: docker/pipeline/Dockerfile
+    container_name: wow-pipeline
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PIPELINE_PORT: 3000
+      WOW_DATA_PATH: /azerothcore/env/dist/data
+      WOW_MPQ_DATA_PATH: ${WOW_MPQ_DATA_PATH:-}
+      WOWSER_PUBLIC: /app/wowser-public
+      WOWSER_NATIVE_URL: ${WOWSER_NATIVE_URL:-}
+      CORS_ORIGIN: https://wow.grudge-studio.com
+    volumes:
+      - ac-client-data:/azerothcore/env/dist/data:ro
+    depends_on:
+      ac-client-data-init:
+        condition: service_completed_successfully
+    networks:
+      - ac-network
+
+  # Ensure SOAP is enabled even without loading override explicitly
+  ac-worldserver:
+    environment:
+      AC_SOAP_ENABLED: "1"
+      AC_SOAP_IP: "0.0.0.0"
+      AC_SOAP_PORT: "7878"
+    tty: false
+    stdin_open: true
+
+  # One-shot bootstrap for SOAP admin (GM level account) — same as in hub compose
+  ac-bootstrap-admin:
+    image: node:22-alpine
+    restart: "no"
+    depends_on:
+      ac-database:
+        condition: service_healthy
+      ac-worldserver:
+        condition: service_started
+    environment:
+      AC_MYSQL_HOST: ac-database
+      AC_MYSQL_PORT: 3306
+      AC_MYSQL_USER: root
+      AC_MYSQL_PASSWORD: ${DOCKER_DB_ROOT_PASSWORD:-password}
+      AC_MYSQL_AUTH_DB: acore_auth
+      AC_SOAP_USER: ${AC_SOAP_USER:-ADMIN}
+      AC_SOAP_PASS: ${AC_SOAP_PASS:-admin}
+    volumes:
+      - ./server/gateway/scripts/init-ac-admin.mjs:/app/init-ac-admin.mjs:ro
+    working_dir: /app
+    networks:
+      - ac-network
+    command: >
+      sh -c '
+        apk add --no-cache python3 make g++ 2>/dev/null || true;
+        mkdir -p /tmp/boot && cp /app/init-ac-admin.mjs /tmp/boot/ && cd /tmp/boot && npm init -y >/dev/null 2>&1 || true;
+        npm install mysql2 dotenv @azerothcore/ac-nodejs-srp6 --no-audit --no-fund --loglevel=error 2>/dev/null || true;
+        node init-ac-admin.mjs || echo "[bootstrap] skipped or failed (account may already exist)";
+      '
+
+  # Cloudflared (optional in local builds; tunnel can be started via start scripts)
+  cloudflared-wow:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    depends_on:
+      - wow-gateway
+      - wow-pipeline
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared/config.docker.yml:/etc/cloudflared/config.yml:ro
+      - ${CLOUDFLARE_TUNNEL_CRED_FILE:-/mnt/c/Users/david/.cloudflared/40054045-d722-400d-811e-ac8bcff05d68.json}:/etc/cloudflared/creds.json:ro
+    networks:
+      - ac-network
+
+volumes:
+  wow-player-data:

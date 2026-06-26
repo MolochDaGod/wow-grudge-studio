@@ -1,0 +1,14 @@
+.env
+.env.local
+data/players.json
+data/players-*.json
+node_modules/
+.vercel/
+docs/drift-report-*.md
+npm-cache/
+D:/
+**/D:/**
+dist/
+docker/acore/
+frontend/wowser-client/
+server/wowser/

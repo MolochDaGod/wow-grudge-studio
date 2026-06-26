@@ -1,0 +1,2 @@
+account create ADMIN admin admin
+account set gmlevel ADMIN 3 -1

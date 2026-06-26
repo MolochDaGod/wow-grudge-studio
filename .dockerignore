@@ -1,0 +1,42 @@
+# Exclude heavy/unneeded files from Docker build context for faster builds
+# (especially important for buildx / cloud builds)
+
+# Git and metadata
+**/.git
+**/.gitattributes
+**/.gitignore
+**/.dockerignore
+
+# Node modules (huge, not needed in context; npm will fetch in image)
+**/node_modules
+
+# Build artifacts and dists
+**/dist
+**/.vite
+**/*.log
+
+# Large data dirs not needed for grudge-wow image
+data/
+docker/acore/scripts/typescript/
+docker/acore/var/
+docker/acore/node_modules/
+
+# Legacy/unused for this build
+server/wowser/
+
+# OS and editor
+**/.DS_Store
+**/*.swp
+**/*~
+
+# Test and dev
+**/.nyc_output
+**/coverage
+**/__tests__
+**/*.test.js
+**/*.spec.js
+
+# Other large or irrelevant
+**/*.zip
+**/*.tar
+**/*.tgz

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grudge WoW — Signing in</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #07070f;
+      color: #f0c060;
+      font-family: Georgia, serif;
+    }
+  </style>
+</head>
+<body>
+  <p>Signing in with Grudge ID…</p>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var token = params.get('grudge_token') || params.get('sso_token') || params.get('token') || params.get('auth_token');
+      var grudgeId = params.get('grudge_id') || params.get('grudgeId') || params.get('auth_grudge_id') || '';
+      var username = params.get('grudge_username') || params.get('username') || params.get('auth_user') || '';
+
+      if (token) {
+        localStorage.setItem('grudge_auth_token', token);
+        localStorage.setItem('grudge_token', token);
+        sessionStorage.setItem('wow_autoplay', '1');
+        if (grudgeId) localStorage.setItem('grudge_id', grudgeId);
+        if (username) localStorage.setItem('grudge_username', username);
+        try {
+          localStorage.setItem('grudge_user', JSON.stringify({ grudgeId: grudgeId, username: username }));
+        } catch (_) {}
+      }
+
+      window.location.replace('/?autoplay=1');
+    })();
+  </script>
+</body>
+</html>

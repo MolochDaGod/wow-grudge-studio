@@ -1,0 +1,19 @@
+{
+  "name": "wow-grudge-gateway",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@azerothcore/ac-nodejs-srp6": "github:azerothcore/ac-nodejs-srp6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "http-proxy": "^1.18.1",
+    "mysql2": "^3.22.5",
+    "ws": "^8.18.0"
+  }
+}

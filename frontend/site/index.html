@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Grudge WoW — play World of Warcraft 3.3.5a in your browser with Wowser.">
+  <meta property="og:title" content="Grudge WoW Browser Client">
+  <meta property="og:description" content="Launch Wowser directly in your browser.">
+  <meta property="og:url" content="https://wow.grudge-studio.com">
+  <title>Grudge WoW — Wowser Client</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Spectral:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="screen.wow.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">⚔</div>
+      <div>
+        <div class="brand-title">Grudge WoW</div>
+        <div class="brand-subtitle">Wowser browser client</div>
+      </div>
+    </div>
+    <div class="status-strip">
+      <span id="serverStatus" class="pill pill-muted">Checking backend…</span>
+      <span id="sessionStatus" class="pill pill-muted">Ready to launch</span>
+    </div>
+    <div class="user-area">
+      <span id="userPill" class="user-pill hidden"></span>
+      <button id="signInBtn" class="control-btn">Sign In</button>
+      <button id="signOutBtn" class="control-btn hidden">Sign Out</button>
+    </div>
+    <div class="controls">
+      <button id="launchBtn" class="control-btn control-btn-primary">Launch Wowser</button>
+      <button id="retryBtn" class="control-btn">Reconnect</button>
+      <button id="fullscreenBtn" class="control-btn">Fullscreen</button>
+      <button id="disconnectBtn" class="control-btn control-btn-danger">Disconnect</button>
+    </div>
+  </header>
+
+  <main class="screen-shell">
+    <section id="gameCanvas" class="game-canvas">
+      <iframe id="wowserFrame" class="wowser-frame hidden" title="Wowser Client" allow="fullscreen"></iframe>
+      <div id="usernameOverlay" class="username-overlay hidden">
+        <div class="overlay-card username-card">
+          <div class="overlay-kicker">Grudge ID</div>
+          <h2>Your Grudge username</h2>
+          <p id="usernameIntro">This name is used across Grudge games and on the AzerothCore realm. Accept it or choose a new one.</p>
+          <label class="username-label" for="usernameInput">Grudge username</label>
+          <input id="usernameInput" class="username-input" maxlength="30" autocomplete="username" />
+          <p id="usernameHint" class="username-hint">3–30 letters, numbers, underscore, or hyphen.</p>
+          <div class="overlay-actions">
+            <button id="usernameAcceptBtn" class="control-btn">Accept</button>
+            <button id="usernameSaveBtn" class="control-btn control-btn-primary">Save Name</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="credentialsOverlay" class="credentials-overlay hidden">
+        <div class="overlay-card credentials-card">
+          <div class="overlay-kicker">Account Ready</div>
+          <h2>Your WoW login</h2>
+          <p id="credentialsIntro">Your AzerothCore account was created from your Grudge ID. Use these to sign in inside Wowser.</p>
+          <div class="credential-row">
+            <span class="credential-label">Grudge username</span>
+            <code id="credGrudgeUser" class="credential-value">—</code>
+          </div>
+          <div class="credential-row">
+            <span class="credential-label">WoW login</span>
+            <code id="credWowLogin" class="credential-value">—</code>
+          </div>
+          <div class="credential-row">
+            <span class="credential-label">WoW password</span>
+            <code id="credWowPass" class="credential-value">—</code>
+          </div>
+          <div id="charactersPanel" class="characters-panel hidden">
+            <div class="characters-title">Your characters</div>
+            <ul id="charactersList" class="characters-list"></ul>
+          </div>
+          <p id="charactersEmpty" class="characters-empty hidden">No characters yet — create one in the Wowser login screen.</p>
+          <div class="overlay-actions">
+            <button id="credentialsPlayBtn" class="control-btn control-btn-primary">Enter Azeroth</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="screenOverlay" class="screen-overlay">
+        <div class="overlay-card">
+          <div class="overlay-kicker">WowserHQ</div>
+          <h1>World of Warcraft</h1>
+          <p id="overlayMessage">Wrath of the Lich King (3.3.5a) in your browser. Sign in with your Grudge ID to play.</p>
+          <div class="overlay-meta" id="configMeta"></div>
+          <div id="launcherCharacters" class="launcher-characters hidden">
+            <div class="launcher-characters-head">
+              <span class="characters-title">Your characters</span>
+              <button id="refreshCharactersBtn" type="button" class="characters-refresh" title="Refresh character list">↻</button>
+            </div>
+            <p id="launcherCharactersLoading" class="launcher-characters-status hidden">Loading characters…</p>
+            <ul id="launcherCharactersList" class="launcher-characters-list"></ul>
+            <p id="launcherCharactersEmpty" class="launcher-characters-status hidden">No characters yet — launch Wowser to create one.</p>
+            <p id="launcherCharactersPending" class="launcher-characters-status hidden">Launch once to provision your WoW account.</p>
+          </div>
+          <div class="overlay-actions">
+            <button id="overlaySignInBtn" class="control-btn">Sign In with Grudge ID</button>
+            <button id="overlayLaunchBtn" class="control-btn control-btn-primary">Start Client</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="screen.wow.js"></script>
+</body>
+</html>

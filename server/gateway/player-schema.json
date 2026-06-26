@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GrudgeWoWPlayerRecord",
+  "description": "Maps a Grudge ID to a canonical Grudge username and AzerothCore WoW login.",
+  "type": "object",
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+    "players": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["grudgeId", "grudgeUsername"],
+        "properties": {
+          "grudgeId": { "type": "string", "description": "Canonical Grudge ID (UUID)" },
+          "grudgeUsername": { "type": "string", "description": "Human-readable Grudge username used for cross-game reference" },
+          "usernameSetupComplete": { "type": "boolean" },
+          "usernameAcceptedAt": { "type": "string", "format": "date-time" },
+          "usernameSource": { "enum": ["accepted", "changed"] },
+          "wowAccount": {
+            "type": "object",
+            "properties": {
+              "login": { "type": "string", "maxLength": 16 },
+              "password": { "type": "string" },
+              "createdAt": { "type": "string", "format": "date-time" }
+            }
+          },
+          "firstLaunchAt": { "type": "string", "format": "date-time" },
+          "lastLaunchAt": { "type": "string", "format": "date-time" },
+          "launchCount": { "type": "integer" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}

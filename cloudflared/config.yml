@@ -1,0 +1,27 @@
+# Cloudflare tunnel for Grudge WoW / Wowser (self-hosted launcher + api + bridges)
+# 1. cloudflared tunnel create wow-grudge
+# 2. cloudflared tunnel route dns wow-grudge wow.grudge-studio.com
+# 3. cloudflared tunnel route dns wow-grudge wow-api.grudge-studio.com
+# 4. cloudflared tunnel route dns wow-grudge wow-pipeline.grudge-studio.com
+# 5. cloudflared tunnel route dns wow-grudge wow-auth.grudge-studio.com
+# 6. cloudflared tunnel route dns wow-grudge wow-world.grudge-studio.com
+
+tunnel: wow-grudge
+credentials-file: C:\Users\david\.cloudflared\40054045-d722-400d-811e-ac8bcff05d68.json
+
+ingress:
+  - hostname: wow.grudge-studio.com
+    service: http://127.0.0.1:8787
+  - hostname: wow-api.grudge-studio.com
+    service: http://127.0.0.1:8787
+  - hostname: wow-pipeline.grudge-studio.com
+    service: http://127.0.0.1:3000
+  - hostname: wow-auth.grudge-studio.com
+    service: http://127.0.0.1:8787
+    originRequest:
+      httpHostHeader: wow-auth.grudge-studio.com
+  - hostname: wow-world.grudge-studio.com
+    service: http://127.0.0.1:8787
+    originRequest:
+      httpHostHeader: wow-world.grudge-studio.com
+  - service: http_status:404

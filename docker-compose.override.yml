@@ -1,0 +1,9 @@
+# Grudge WoW — enable AzerothCore SOAP for gateway auto-provision
+services:
+  ac-worldserver:
+    tty: false
+    stdin_open: true
+    environment:
+      AC_SOAP_ENABLED: "1"
+      AC_SOAP_IP: "0.0.0.0"
+      AC_SOAP_PORT: "7878"

@@ -1,0 +1,19 @@
+tunnel: wow-grudge
+credentials-file: /etc/cloudflared/creds.json
+
+ingress:
+  - hostname: wow.grudge-studio.com
+    service: http://wow-gateway:8787
+  - hostname: wow-api.grudge-studio.com
+    service: http://wow-gateway:8787
+  - hostname: wow-pipeline.grudge-studio.com
+    service: http://wow-pipeline:3000
+  - hostname: wow-auth.grudge-studio.com
+    service: http://wow-gateway:8787
+    originRequest:
+      httpHostHeader: wow-auth.grudge-studio.com
+  - hostname: wow-world.grudge-studio.com
+    service: http://wow-gateway:8787
+    originRequest:
+      httpHostHeader: wow-world.grudge-studio.com
+  - service: http_status:404
