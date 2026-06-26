@@ -1,8 +1,28 @@
+/** Launcher HTML is on wow.grudge-studio.com (Vercel); API is always wow-api (tunnel → gateway). */
 const API = (() => {
   const host = window.location.hostname;
   if (host === 'localhost' || host === '127.0.0.1') return 'http://127.0.0.1:8787/api';
   return 'https://wow-api.grudge-studio.com/api';
 })();
+
+const API_FALLBACKS = [...new Set([
+  API,
+  'http://127.0.0.1:8787/api',
+])];
+
+async function gatewayFetch(path, opts = {}) {
+  const errors = [];
+  for (const base of API_FALLBACKS) {
+    try {
+      const response = await fetch(`${base}${path}`, opts);
+      if (response.ok) return response;
+      errors.push(`${base}${path} → ${response.status}`);
+    } catch (err) {
+      errors.push(`${base}${path} → ${err?.message || 'network'}`);
+    }
+  }
+  throw new Error(errors.join('; ') || 'Gateway unreachable');
+}
 
 const GRUDGE_AUTH_URL = 'https://id.grudge-studio.com';
 const GRUDGE_ID_API = 'https://id.grudge-studio.com';
@@ -678,20 +698,21 @@ const App = {
 
   async checkHealth() {
     try {
-      const response = await fetch(`${API}/health`, { signal: AbortSignal.timeout(6000) });
+      const response = await gatewayFetch('/health', { signal: AbortSignal.timeout(8000) });
       const data = await response.json();
       const ok = data.status === 'ok';
       this.setServerStatus(ok ? 'Gateway online' : 'Gateway issue', ok ? 'ok' : 'warn');
       return ok;
-    } catch {
-      this.setServerStatus('Gateway offline — start local server', 'error');
+    } catch (err) {
+      console.warn('Gateway health check failed:', err);
+      this.setServerStatus('Gateway offline — run start-all.ps1 on your PC', 'error');
       return false;
     }
   },
 
   async loadConfig() {
     try {
-      const response = await fetch(`${API}/config`, { signal: AbortSignal.timeout(6000) });
+      const response = await gatewayFetch('/config', { signal: AbortSignal.timeout(8000) });
       this.config = await response.json();
       const authNote = Auth.requiresAuth() ? 'Grudge ID + username' : 'Local dev mode';
       this.configMetaEl.innerHTML = [
@@ -720,7 +741,7 @@ const App = {
         throw new Error('Gateway is offline. Run start-all.ps1 on your PC first.');
       }
 
-      const response = await fetch(`${API}/play/direct`, {
+      const response = await gatewayFetch('/play/direct', {
         method: 'POST',
         ...Auth.fetchOptions({}),
       });
@@ -754,9 +775,13 @@ const App = {
       }
       this.launchClient(this.config || payload, payload);
     } catch (error) {
-      console.error('Wowser launch failed:', error);
+      const msg = error?.message || String(error);
+      console.error('Wowser launch failed:', msg);
       if (!this.player?.needsUsernameSetup) {
-        this.showOverlay(error.message);
+        const hint = /502|Gateway unreachable|offline/i.test(msg)
+          ? `${msg} The game server on grudgestudio may be down — restart debian-wow-up and cloudflared.`
+          : msg;
+        this.showOverlay(hint);
       }
       this.setSessionStatus('Launch failed', 'error');
     } finally {
