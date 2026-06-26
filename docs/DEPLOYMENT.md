@@ -55,12 +55,27 @@ docker compose -f docker-compose.hub.yml --env-file .env up -d
 
 ## Frontend (Vercel)
 
+Repo: [github.com/MolochDaGod/wow-grudge-studio](https://github.com/MolochDaGod/wow-grudge-studio)
+
+Vercel project: `wow-frontend` (`prj_ekVK6312Clo9HSu8pmHQd7MGP3fh`) → `wow.grudge-studio.com`
+
 ```powershell
 cd frontend/site
-vercel --prod
+vercel --prod --yes
 ```
 
 `vercel.json` rewrites `/auth/callback` for Grudge OAuth return.
+
+Connect the Vercel project to the GitHub repo in the Vercel dashboard for auto-deploy on `main` (root: `frontend/site`).
+
+## Cloudflare tunnel (grudgestudio)
+
+Use **one** connector for tunnel `wow-grudge`. Recommended on this host:
+
+1. Stack in Debian WSL: `scripts/debian-wow-up.sh`
+2. Windows tunnel only: `cloudflared/config.yml` → `127.0.0.1:8787`
+
+Do **not** run docker `cloudflared-wow` and Windows cloudflared together (502 flapping). Docker tunnel is opt-in: `--profile tunnel`.
 
 For fully self-hosted live server (no Vercel), route `wow.grudge-studio.com` in cloudflared to the gateway (8787). The gateway now serves the launcher static files + `/api` etc. See cloudflared/config.docker.yml and the updated grudge-wow Dockerfile.
 

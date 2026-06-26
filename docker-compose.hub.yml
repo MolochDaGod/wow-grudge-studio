@@ -113,10 +113,11 @@ services:
         node init-ac-admin.mjs || echo "[bootstrap] skipped or failed (account may already exist)";
       '
 
-  # Cloudflare tunnel for public endpoints (uses local tunnel credentials file).
-  # For machines without the exact cred path, run tunnel separately or provide CLOUDFLARE_TUNNEL_TOKEN + switch to token mode.
-  # See cloudflared/config.docker.yml and docs.
+  # Cloudflare tunnel (optional). On grudgestudio, prefer Windows cloudflared + cloudflared/config.yml
+  # to avoid duplicate connectors on tunnel wow-grudge (causes 502 flapping).
+  # Enable with: docker compose -f docker-compose.hub.yml --profile tunnel up -d
   cloudflared-wow:
+    profiles: ["tunnel"]
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
     depends_on:

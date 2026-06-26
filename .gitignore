@@ -8,6 +8,7 @@ docs/drift-report-*.md
 npm-cache/
 D:/
 **/D:/**
+**/npm-cache/**
 dist/
 docker/acore/
 frontend/wowser-client/

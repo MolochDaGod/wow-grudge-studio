@@ -2,6 +2,8 @@
 
 Browser-playable World of Warcraft 3.3.5a via **Wowser** + **AzerothCore**, gated by **Grudge ID**.
 
+**Repo:** [github.com/MolochDaGod/wow-grudge-studio](https://github.com/MolochDaGod/wow-grudge-studio)
+
 | Surface | URL |
 |---------|-----|
 | Launcher UI | https://wow.grudge-studio.com |
